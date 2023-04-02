@@ -5,6 +5,7 @@ const { expect } = require("chai");
 const { it } = require("mocha");
 const userData = require("../users.json");
 const { log } = require("console");
+const transaction = require("../transactions.json");
 
 describe("Check Balance And Statemnt", () => {
   before(async () => {
@@ -38,5 +39,23 @@ describe("Check Balance And Statemnt", () => {
       .then((res) => res.data);
     expect(response.message).contains("User balance");
     // console.log("Balance Response:", response);
+  });
+
+  it("Check Statement by Trasaction ID", async () => {
+    let phonenumber = userData[userData.length - 1].phone_number;
+    const agentsTransactionId =
+      transaction.agentTransactions[transaction.agentTransactions.length - 1]
+        .trnxid;
+    let response = await axios
+      .get(`${jsonData.baseUrl}/transaction/search/${agentsTransactionId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: jsonData.token,
+          "X-AUTH-SECRET-KEY": jsonData.secretKey,
+        },
+      })
+      .then((res) => res.data);
+    expect(response.message).contains("Transaction list");
+    // console.log("Statement Response:", response);
   });
 });

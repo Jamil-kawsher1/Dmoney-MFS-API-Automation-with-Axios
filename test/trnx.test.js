@@ -4,6 +4,7 @@ const fs = require("fs");
 const { expect } = require("chai");
 const agentData = require("../agent.json");
 const customerData = require("../users.json");
+const transactions = require("../transactions.json");
 describe("User can do transaction", () => {
   before(async () => {
     var response = await axios.post(
@@ -25,13 +26,14 @@ describe("User can do transaction", () => {
   });
   it(" Deposit 5000 tk to the Agent from system", async () => {
     const agentPhoneNumber = agentData[agentData.length - 1].phone_number;
+    let amount = 5000;
     var response = await axios
       .post(
         `${jsonData.baseUrl}/transaction/deposit`,
         {
           from_account: "SYSTEM",
           to_account: agentPhoneNumber,
-          amount: 5000,
+          amount: amount,
         },
         {
           headers: {
@@ -45,6 +47,20 @@ describe("User can do transaction", () => {
 
     console.log(response);
     expect(response.message).contains("successful");
+
+    // Add user transactions to the transactions object
+
+    // Add agent transactions to the transactions object
+    transactions.agentTransactions.push({
+      amount: amount,
+      trnxid: response.trnxId,
+    });
+
+    // Write transactions object to JSON file
+    fs.writeFile("transactions.json", JSON.stringify(transactions), (err) => {
+      if (err) throw err;
+      console.log("Transactions saved to transactions.json");
+    });
   });
 
   it(" Deposit 2000 tk by agent to customer ", async () => {
