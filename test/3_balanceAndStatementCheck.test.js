@@ -58,4 +58,22 @@ describe("Check Balance And Statemnt", () => {
     expect(response.message).contains("Transaction list");
     // console.log("Statement Response:", response);
   });
+
+  it("Check CustomerStatement by Phone Number", async () => {
+    let phonenumber = userData[userData.length - 2].phone_number;
+    const agentsTransactionId =
+      transaction.agentTransactions[transaction.agentTransactions.length - 1]
+        .trnxid;
+    let response = await axios
+      .get(`${jsonData.baseUrl}/transaction/statement/${phonenumber}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: jsonData.token,
+          "X-AUTH-SECRET-KEY": jsonData.secretKey,
+        },
+      })
+      .then((res) => res.data);
+    expect(response.message).contains("Transaction list");
+    // console.log("Statement Response:", response);
+  });
 });
