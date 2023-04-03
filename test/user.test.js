@@ -7,7 +7,7 @@ var rand = require("../generateRandom");
 
 const userData = require("../users.json");
 
-describe("User can do login", () => {
+describe("Users Actions", () => {
   it("User can login successfully", async () => {
     var response = await axios.post(
       `${jsonData.baseUrl}/user/login`,

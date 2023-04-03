@@ -19,7 +19,7 @@ describe("User can do transaction", () => {
         },
       }
     );
-    console.log(response.data);
+    // console.log(response.data);
     let token_value = response.data.token;
     jsonData.token = token_value;
     fs.writeFileSync("env.json", JSON.stringify(jsonData));
@@ -87,5 +87,35 @@ describe("User can do transaction", () => {
 
     console.log(response);
     expect(response.message).contains("successful");
+  });
+
+  it("Withdraw 1000 tk by customer and assert expected balance", async () => {
+    const agentPhoneNumber = agentData[agentData.length - 1].phone_number;
+    const customerPhoneNumber =
+      customerData[customerData.length - 1].phone_number;
+    var response = await axios
+      .post(
+        `${jsonData.baseUrl}/transaction/withdraw/`,
+        {
+          from_account: customerPhoneNumber,
+          to_account: agentPhoneNumber,
+          amount: 1000,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: jsonData.token,
+            "X-AUTH-SECRET-KEY": jsonData.secretKey,
+          },
+        }
+      )
+      .then((res) => res.data);
+
+    console.log("1000 Withdrwal:", response.message);
+    console.log("1000 Withdrwal Current balance:", response.currentBalance);
+    console.log("1000 Withdrwal fee:", response.fee);
+    let cBalance = response.currentBalance;
+    expect(cBalance).equal(990);
+    // expect(String.toString(cBalance)).contains("990");
   });
 });
