@@ -4,7 +4,7 @@ const jsonData = require("../env.json");
 const fs = require("fs");
 const { faker } = require("@faker-js/faker");
 var rand = require("../generateRandom");
-
+const transaction = require("../transactions.json");
 const userData = require("../users.json");
 const agentData = require("../agent.json");
 
@@ -253,5 +253,150 @@ describe("Users Actions", () => {
 
     fs.writeFileSync("agent.json", JSON.stringify(userData));
     console.log("Saved!");
+  });
+
+  it("Search by the customer by invalid phone number", async () => {
+    try {
+      var response = await axios
+        .get(`${jsonData.baseUrl}/user/search/phonenumber/"017344641"`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: jsonData.token,
+            "X-AUTH-SECRET-KEY": jsonData.secretKey,
+          },
+        })
+        .then((res) => res.data);
+      console.log(response.message);
+    } catch (error) {
+      console.log(error.response.status);
+
+      expect(error.response.status).equal(404);
+    }
+  });
+
+  it("Search by the customer phone number", async () => {
+    let phonenumber = userData[userData.length - 1].phone_number;
+    var response = await axios
+      .get(`${jsonData.baseUrl}/user/search/phonenumber/${phonenumber}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: jsonData.token,
+          "X-AUTH-SECRET-KEY": jsonData.secretKey,
+        },
+      })
+      .then((res) => res.data);
+
+    console.log(response.message);
+  });
+
+  it("Check balance of invalid customer", async () => {
+    try {
+      let response = await axios
+        .get(`${jsonData.baseUrl}/transaction/balance/01837335`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: jsonData.token,
+            "X-AUTH-SECRET-KEY": jsonData.secretKey,
+          },
+        })
+        .then((res) => res.data);
+      console.log("Balance Response:", response);
+
+      expect(response.message).to.not.contain("User balance");
+    } catch (error) {
+      console.log(error.response.status);
+
+      expect(error.response.status).equal(404);
+    }
+  });
+  it("Check balance of customer", async () => {
+    let phonenumber = userData[userData.length - 1].phone_number;
+    let response = await axios
+      .get(`${jsonData.baseUrl}/transaction/balance/${phonenumber}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: jsonData.token,
+          "X-AUTH-SECRET-KEY": jsonData.secretKey,
+        },
+      })
+      .then((res) => res.data);
+    console.log("Balance Response:", response);
+    expect(response.message).contains("User balance");
+  });
+
+  it("Check Statement by Invalid Trasaction ID", async () => {
+    try {
+      let response = await axios
+        .get(`${jsonData.baseUrl}/transaction/search/trdh`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: jsonData.token,
+            "X-AUTH-SECRET-KEY": jsonData.secretKey,
+          },
+        })
+        .then((res) => res.data);
+      console.log("Statement Response:", response);
+
+      expect(response.message).to.not.contain("Transaction list");
+    } catch (error) {
+      console.log(error.response.status);
+
+      expect(error.response.status).equal(404);
+    }
+  });
+
+  it("Check Statement by Trasaction ID", async () => {
+    let phonenumber = userData[userData.length - 1].phone_number;
+    const agentsTransactionId =
+      transaction.agentTransactions[transaction.agentTransactions.length - 1]
+        .trnxid;
+    let response = await axios
+      .get(`${jsonData.baseUrl}/transaction/search/${agentsTransactionId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: jsonData.token,
+          "X-AUTH-SECRET-KEY": jsonData.secretKey,
+        },
+      })
+      .then((res) => res.data);
+    console.log("Statement Response:", response);
+    expect(response.message).contains("Transaction list");
+  });
+
+  it("Check Customer Statement by Invalid Phone Number", async () => {
+    try {
+      let response = await axios
+        .get(`${jsonData.baseUrl}/transaction/statement/0163636`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: jsonData.token,
+            "X-AUTH-SECRET-KEY": jsonData.secretKey,
+          },
+        })
+        .then((res) => res.data);
+      console.log("Statement Response:", response);
+
+      expect(response.message).to.not.contain("Transaction list");
+    } catch (error) {
+      console.log(error.response.status);
+
+      expect(error.response.status).equal(404);
+    }
+  });
+
+  it("Check Customer Statement by Phone Number", async () => {
+    let phonenumber = userData[userData.length - 2].phone_number;
+
+    let response = await axios
+      .get(`${jsonData.baseUrl}/transaction/statement/${phonenumber}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: jsonData.token,
+          "X-AUTH-SECRET-KEY": jsonData.secretKey,
+        },
+      })
+      .then((res) => res.data);
+    console.log("Statement Response:", response);
+    expect(response.message).contains("Transaction list");
   });
 });

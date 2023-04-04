@@ -6,7 +6,7 @@ const agentData = require("../agent.json");
 const customerData = require("../users.json");
 const transactions = require("../transactions.json");
 const { log } = require("console");
-describe("User can do transaction", () => {
+describe("User can do Transaction Actions", () => {
   before(async () => {
     var response = await axios.post(
       `${jsonData.baseUrl}/user/login`,
