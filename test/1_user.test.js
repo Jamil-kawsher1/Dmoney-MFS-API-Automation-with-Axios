@@ -6,6 +6,7 @@ const { faker } = require("@faker-js/faker");
 var rand = require("../generateRandom");
 
 const userData = require("../users.json");
+const agentData = require("../agent.json");
 
 describe("Users Actions", () => {
   it("User can not login With Invalid Credentials", async () => {
@@ -248,7 +249,7 @@ describe("Users Actions", () => {
       role: role,
     };
 
-    userData.push(newAgent);
+    agentData.push(newAgent);
 
     fs.writeFileSync("agent.json", JSON.stringify(userData));
     console.log("Saved!");

@@ -26,6 +26,26 @@ describe("Check Balance And Statemnt", () => {
     jsonData.token = token_value;
     fs.writeFileSync("env.json", JSON.stringify(jsonData));
   });
+  it("Check balance of invalid customer", async () => {
+    try {
+      let response = await axios
+        .get(`${jsonData.baseUrl}/transaction/balance/01837335`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: jsonData.token,
+            "X-AUTH-SECRET-KEY": jsonData.secretKey,
+          },
+        })
+        .then((res) => res.data);
+      console.log("Balance Response:", response);
+
+      expect(response.message).to.not.contain("User balance");
+    } catch (error) {
+      console.log(error.response.status);
+
+      expect(error.response.status).equal(404);
+    }
+  });
   it("Check balance of customer", async () => {
     let phonenumber = userData[userData.length - 1].phone_number;
     let response = await axios
@@ -37,8 +57,8 @@ describe("Check Balance And Statemnt", () => {
         },
       })
       .then((res) => res.data);
+    console.log("Balance Response:", response);
     expect(response.message).contains("User balance");
-    // console.log("Balance Response:", response);
   });
 
   it("Check Statement by Trasaction ID", async () => {
@@ -55,15 +75,13 @@ describe("Check Balance And Statemnt", () => {
         },
       })
       .then((res) => res.data);
+    console.log("Statement Response:", response);
     expect(response.message).contains("Transaction list");
-    // console.log("Statement Response:", response);
   });
 
   it("Check CustomerStatement by Phone Number", async () => {
     let phonenumber = userData[userData.length - 2].phone_number;
-    const agentsTransactionId =
-      transaction.agentTransactions[transaction.agentTransactions.length - 1]
-        .trnxid;
+
     let response = await axios
       .get(`${jsonData.baseUrl}/transaction/statement/${phonenumber}`, {
         headers: {
@@ -73,7 +91,7 @@ describe("Check Balance And Statemnt", () => {
         },
       })
       .then((res) => res.data);
+    console.log("Statement Response:", response);
     expect(response.message).contains("Transaction list");
-    // console.log("Statement Response:", response);
   });
 });

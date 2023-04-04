@@ -181,33 +181,6 @@ describe("User can do transaction", () => {
     expect(response.message).contains("successful");
   });
 
-  //   const customerPhoneNumber =
-  //     customerData[customerData.length - 2].phone_number;
-  //   var response = await axios
-  //     .post(
-  //       `${jsonData.baseUrl}/transaction/withdraw/`,
-  //       {
-  //         from_account: customerPhoneNumber,
-  //         to_account: "0465465464",
-  //         amount: 1000,
-  //       },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: jsonData.token,
-  //           "X-AUTH-SECRET-KEY": jsonData.secretKey,
-  //         },
-  //       }
-  //     )
-  //     .then((res) => res.data);
-
-  //   console.log("1000 Withdrwal:", response.message);
-  //   // console.log("1000 Withdrwal Current balance:", response.currentBalance);
-  //   // console.log("1000 Withdrwal fee:", response.fee);
-
-  //   expect(response.status).equal(404);
-  // });
-
   it("Withdraw 1000 tk by customer and assert expected balance", async () => {
     const agentPhoneNumber = agentData[agentData.length - 1].phone_number;
     const customerPhoneNumber =
@@ -238,6 +211,39 @@ describe("User can do transaction", () => {
     // expect(String.toString(cBalance)).contains("990");
   });
 
+  it("Send 500 tk to another invalid customer and assert expected balance", async () => {
+    const customer1PhoneNumber =
+      customerData[customerData.length - 2].phone_number;
+    const customer2PhoneNumber = "02743747"; // Invalid phone number
+    try {
+      var response = await axios
+        .post(
+          `${jsonData.baseUrl}/transaction/sendmoney/`,
+          {
+            from_account: customer1PhoneNumber,
+            to_account: customer2PhoneNumber,
+            amount: 500,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: jsonData.token,
+              "X-AUTH-SECRET-KEY": jsonData.secretKey,
+            },
+          }
+        )
+        .then((res) => res.data);
+      console.log(response);
+      expect(response.status).equal(404);
+      // Make an assertion based on the response
+      // expect(response).to.be.undefined; // Expect the response to be undefined since the request should fail with a 404 error
+    } catch (error) {
+      console.log(error.response.status); // Log the error status code
+      // Make an assertion based on the error status code
+      expect(error.response.status).equal(404); // Expect the status code to be 404 since the requested resource is not found
+    }
+  });
+
   it("Send 500 tk to another customer and assert expected balance", async () => {
     // const agentPhoneNumber = agentData[agentData.length - 1].phone_number;
     const customer1PhoneNumber =
@@ -246,7 +252,7 @@ describe("User can do transaction", () => {
       customerData[customerData.length - 1].phone_number;
     var response = await axios
       .post(
-        `${jsonData.baseUrl}/transaction/sendmoney/`,
+        `${jsonData.baseUrl}/transaction/sendmoney`,
         {
           from_account: customer1PhoneNumber,
           to_account: customer2PhoneNumber,
@@ -267,7 +273,7 @@ describe("User can do transaction", () => {
     // console.log("500 sendMoney fee:", response.fee);
     // let cBalance = response.currentBalance;
     // console.log(cBalance);
-    // expect(response.currentBalance).equal(485);
+    expect(response.currentBalance).equal(485);
     // expect(String.toString(cBalance)).contains("990");
   });
 });

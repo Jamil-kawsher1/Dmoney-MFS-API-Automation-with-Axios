@@ -24,6 +24,26 @@ describe("Search With Deffrent Option", () => {
     jsonData.token = token_value;
     fs.writeFileSync("env.json", JSON.stringify(jsonData));
   });
+
+  it("Search by the customer by invalid phone number", async () => {
+    try {
+      var response = await axios
+        .get(`${jsonData.baseUrl}/user/search/phonenumber/"017344641"`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: jsonData.token,
+            "X-AUTH-SECRET-KEY": jsonData.secretKey,
+          },
+        })
+        .then((res) => res.data);
+      console.log(response.message);
+    } catch (error) {
+      console.log(error.response.status);
+
+      expect(error.response.status).equal(404);
+    }
+  });
+
   it("Search by the customer phone number", async () => {
     let phonenumber = userData[userData.length - 1].phone_number;
     var response = await axios
